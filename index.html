@@ -10,7 +10,6 @@
       margin: 0;
       padding: 0;
       min-height: 100%;
-      /* Fuente del sistema segura */
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       color: #39ff14;
       background-color: #000;
@@ -21,7 +20,6 @@
       top: 0;
       left: 0;
       z-index: -1;
-      /* Matrix siempre se ve mejor con monospace */
       font-family: 'Courier New', monospace; 
     }
 
@@ -56,7 +54,7 @@
       opacity: 0.5;
     }
 
-    /* --- INPUT AREA --- */
+    /* --- SECCIÓN 1: INPUT AREA --- */
     .input-container {
       background: rgba(0, 20, 0, 0.85);
       padding: 20px;
@@ -64,15 +62,23 @@
       border-radius: 10px;
       box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);
       display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 30px;
+      z-index: 10;
+      max-width: 90%;
+    }
+
+    .input-row {
+      display: flex;
       gap: 10px;
       align-items: center;
       flex-wrap: wrap;
       justify-content: center;
-      margin-bottom: 30px;
-      z-index: 10;
     }
 
-    input {
+    input.main-input {
       padding: 12px;
       font-size: 18px;
       border-radius: 5px;
@@ -85,7 +91,7 @@
       font-family: inherit; 
     }
 
-    input:focus {
+    input.main-input:focus {
       border-color: #39ff14;
       box-shadow: 0 0 10px #39ff14;
     }
@@ -152,7 +158,7 @@
       text-shadow: 0 0 2px rgba(255,255,255,0.5);
     }
 
-    /* --- LABORATORIO GLITCH (SECCIÓN 2) --- */
+    /* --- SECCIÓN 2: EDITOR GLITCH --- */
     #glitch-lab {
       text-align: center;
       background: rgba(0, 0, 0, 0.9);
@@ -161,29 +167,105 @@
       border-radius: 15px;
       width: 90%;
       max-width: 700px;
+      margin-bottom: 50px;
     }
 
-    #output-manual {
-      margin-top: 20px;
-      font-size: 28px;
-      min-height: 60px;
-      padding: 20px;
-      word-wrap: break-word; /* Rompe palabras largas para que no se salgan */
-      word-break: break-all;
-      border: 1px solid #333;
-      background: #050505;
+    .glitch-input-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      border: 2px solid #333;
+      border-radius: 5px;
+      width: fit-content;
+      margin: 0 auto;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+    
+    .glitch-input-wrapper:focus-within {
+      border-color: #39ff14;
+      box-shadow: 0 0 10px #39ff14;
+    }
+
+    /* Animación de ERROR (Shake + Rojo momentáneo) */
+    .input-error-anim {
+      animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+      border-color: #ff3333 !important;
+      box-shadow: 0 0 15px #ff3333 !important;
+    }
+
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-1px, 0, 0); }
+      20%, 80% { transform: translate3d(2px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+      40%, 60% { transform: translate3d(4px, 0, 0); }
+    }
+
+    .static-prefix {
+      background: #111;
+      color: #888;
+      padding: 12px 5px 12px 12px;
+      font-size: 18px;
+      font-family: inherit;
+      border-right: 1px solid #333;
+      user-select: none;
+    }
+
+    #inputGlitch {
+      padding: 12px;
+      font-size: 18px;
+      background: #000;
       color: #fff;
-      animation: glitchAnim 1s infinite;
-      /* Forzamos fuente normal para asegurar compatibilidad */
-      font-family: sans-serif;
+      border: none;
+      outline: none;
+      width: 200px;
+      font-family: inherit;
     }
 
-    @keyframes glitchAnim {
-      0%   { text-shadow: 2px 0 red, -2px 0 cyan; }
-      25%  { text-shadow: -2px -2px magenta, 2px 2px lime; }
-      50%  { text-shadow: 2px -2px blue, -2px 2px yellow; }
-      75%  { text-shadow: -1px 0 orange, 1px 1px violet; }
-      100% { text-shadow: 0 0 #39ff14; }
+    /* Panel de Botones */
+    .effects-panel {
+      background: rgba(0,20,0,0.5);
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .effect-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .group-label {
+      font-size: 11px;
+      color: #888;
+      width: 60px;
+      text-align: right;
+      margin-right: 5px;
+      font-weight: bold;
+    }
+
+    .mini-btn {
+      padding: 6px 10px;
+      font-size: 16px;
+      margin: 2px;
+      min-width: 40px;
+      border: 1px solid #39ff14;
+      background: #000;
+      color: #fff;
+      cursor: pointer;
+    }
+    
+    .mini-btn:hover {
+      background: #39ff14;
+      color: #000;
     }
 
     /* Toast Notification */
@@ -218,12 +300,14 @@
 
   <canvas id="matrix"></canvas>
 
-  <h1>TAG HYPERNOVA Ϟ</h1>
+  <h1>TAG HYPERNOVA</h1>
   <p class="subtitle">Generador creado por @eikroz</p>
   
   <div class="input-container">
-    <span style="font-size: 24px; color: #fff; font-family: sans-serif;">「Ϟ」</span>
-    <input id="inputNick" type="text" placeholder="Tu Nombre" value="eikroz" oninput="generarNicks()">
+    <div class="input-row">
+      <span style="font-size: 24px; color: #fff; font-family: sans-serif;">「Ϟ」</span>
+      <input id="inputNick" class="main-input" type="text" placeholder="Nombre" value="" oninput="generarNicks()" maxlength="9">
+    </div>
   </div>
 
   <div id="results-container"></div>
@@ -231,25 +315,56 @@
   <hr>
 
   <div id="glitch-lab">
-    <h2>GENERADOR GLITCH PRO+</h2>
-    <p class="subtitle">Modo Manual: Protege el clan 「Ϟ」 automáticamente</p>
+    <h2>EDITOR GLITCH MANUAL</h2>
+    <p class="subtitle">Personaliza letra por letra.</p>
     
-    <input id="inputGlitch" placeholder="Ej: 「Ϟ」Eikroz" value="「Ϟ」eikroz">
-    <br>
-    <div style="margin-top: 10px;">
-        <button onclick="glitchearManual()">GLITCHEAR</button>
-        <button onclick="añadirRuidoManual()">AÑADIR RUIDO</button>
-        <button onclick="copiarManual()">COPIAR</button>
+    <div id="char-counter" style="font-family: 'Courier New'; font-size: 18px; color: #39ff14; margin-bottom: 10px;">
+      CARACTERES: <span id="current-count">3</span> / 12
     </div>
 
-    <div id="output-manual"></div>
+    <div class="glitch-input-wrapper">
+      <span class="static-prefix">「Ϟ」</span>
+      <input id="inputGlitch" placeholder="Escribe..." oninput="actualizarContador()" onkeydown="verificarLimiteEscritura(event)" maxlength="9">
+    </div>
+    
+    <div class="effects-panel">
+      <div class="effect-group">
+        <span class="group-label">ARRIBA:</span>
+        <button class="mini-btn" onclick="addSymbol('ͣ')">ᵃ</button>
+        <button class="mini-btn" onclick="addSymbol('ͫ')">ᵐ</button>
+        <button class="mini-btn" onclick="addSymbol('ͥ')">ⁱ</button>
+        <button class="mini-btn" onclick="addSymbol('ͦ')">ᵒ</button>
+        <button class="mini-btn" onclick="addSymbol('ͧ')">ᵘ</button>
+        <button class="mini-btn" onclick="addSymbol('̽')">x</button>
+        <button class="mini-btn" onclick="addSymbol('͘')">●</button>
+      </div>
+
+      <div class="effect-group">
+        <span class="group-label">MEDIO:</span>
+        <button class="mini-btn" onclick="addSymbol('̸')">SLASH</button>
+        <button class="mini-btn" onclick="addSymbol('̷')">/</button>
+        <button class="mini-btn" onclick="addSymbol('̶')">-</button>
+      </div>
+
+      <div class="effect-group">
+        <span class="group-label">ABAJO:</span>
+        <button class="mini-btn" onclick="addSymbol('̣')">.</button>
+        <button class="mini-btn" onclick="addSymbol('͢')">⮕</button>
+        <button class="mini-btn" onclick="addSymbol('͓')">x</button>
+        <button class="mini-btn" onclick="addSymbol('͜')">‿</button>
+        <button class="mini-btn" onclick="addSymbol('̰')">~</button>
+      </div>
+    </div>
+
+    <br>
+    <button onclick="copiarGlitch()" style="width: 100%; max-width: 300px;">COPIAR RESULTADO</button>
   </div>
 
   <div id="toast">¡Copiado al portapapeles!</div>
 
   <script>
     // ---------------------------------------------------------
-    // 1. CONFIGURACIÓN
+    // 1. CONFIGURACIÓN DE FUENTES
     // ---------------------------------------------------------
     const fonts = {
       soft: {
@@ -275,19 +390,22 @@
       }
     };
 
-    // Símbolos para "ensuciar" el texto (Diacríticos Zalgo)
-    const diacritics = ['͓','ͣ','ͫ','̸','͢','ͥ','͜','ͦ','ͧ','̷','̽','͘'];
-    const glitches = ['ₓ','𓂀','᯾','҂','Ꙭ','꯱','ৣ','۞','۩','҉','₪','᠎'];
-
     // ---------------------------------------------------------
-    // 2. LÓGICA DE LA SECCIÓN 1 (NICKS)
+    // 2. LOGICA SECCIÓN 1 (GENERACIÓN AUTOMÁTICA)
     // ---------------------------------------------------------
     function transformarTexto(texto, mapa) {
       return texto.split('').map(char => mapa[char] || mapa[char.toLowerCase()] || char).join('');
     }
 
     function generarNicks() {
-      const input = document.getElementById('inputNick').value;
+      let inputElement = document.getElementById('inputNick');
+      
+      // Validación extra
+      if ([...inputElement.value].length > 9) {
+          inputElement.value = [...inputElement.value].slice(0, 9).join('');
+      }
+      
+      const input = inputElement.value;
       const container = document.getElementById('results-container');
       const prefix = "「Ϟ」"; 
       
@@ -295,13 +413,26 @@
 
       if (!input) return;
 
+      const cortarTexto = (texto) => {
+        const arrayTexto = [...texto];
+        if (arrayTexto.length > 12) return arrayTexto.slice(0, 12).join('');
+        return texto;
+      };
+
       for (const key in fonts) {
         const estilo = fonts[key];
         let nombreTransformado = transformarTexto(input, estilo.map);
         if (estilo.suffix) nombreTransformado += estilo.suffix;
-        crearTarjeta(estilo.name, prefix + nombreTransformado);
+        
+        let textoCompleto = prefix + nombreTransformado;
+        textoCompleto = cortarTexto(textoCompleto);
+
+        crearTarjeta(estilo.name, textoCompleto);
       }
-      crearTarjeta("ORIGINAL", prefix + input);
+      
+      let originalFinal = prefix + input;
+      originalFinal = cortarTexto(originalFinal);
+      crearTarjeta("ORIGINAL", originalFinal);
     }
 
     function crearTarjeta(etiqueta, textoFinal) {
@@ -319,62 +450,77 @@
     }
 
     // ---------------------------------------------------------
-    // 3. LÓGICA DE LA SECCIÓN 2 (GLITCH MANUAL)
+    // 3. LOGICA SECCIÓN 2 (EDITOR GLITCH MANUAL)
     // ---------------------------------------------------------
-    
-    // CORRECCIÓN: Ya no reemplazamos las letras por símbolos matemáticos raros.
-    // Usamos la letra original y le pegamos "ruido" encima.
-    function glitchearManual() {
-      const input = document.getElementById('inputGlitch').value;
-      const clanTag = "「Ϟ」";
-      
-      let prefix = "";
-      let textoParaProcesar = input;
 
-      // 🛑 DETECCIÓN DEL CLAN
-      if (input.startsWith(clanTag)) {
-        prefix = clanTag;
-        textoParaProcesar = input.substring(clanTag.length);
+    function actualizarContador() {
+      const input = document.getElementById('inputGlitch');
+      const counterDisplay = document.getElementById('current-count');
+      const wrapper = document.querySelector('.glitch-input-wrapper');
+      
+      // Validación extra para pegar texto
+      if ([...input.value].length > 9) {
+          input.value = [...input.value].slice(0, 9).join('');
       }
 
-      let output = '';
-      for (let char of textoParaProcesar) {
-        // En vez de buscar en un mapa de fuentes raras, usamos el 'char' original
-        // Y le agregamos un diacrítico aleatorio para el efecto glitch
-        const glitch = diacritics[Math.floor(Math.random() * diacritics.length)];
-        output += char + glitch; 
-      }
+      const prefixLength = 3;
+      const userLength = [...input.value].length;
+      const totalLength = prefixLength + userLength;
       
-      document.getElementById('output-manual').innerText = prefix + output;
+      counterDisplay.innerText = totalLength;
+
+      // ELIMINADO: Ya no ponemos la clase roja fija si llega a 12.
+      // El borde se queda normal (verde/neutro) aunque esté lleno.
+      
+      return totalLength;
     }
 
-    function añadirRuidoManual() {
-      let text = document.getElementById('output-manual').innerText;
-      const clanTag = "「Ϟ」";
+    // NUEVA FUNCIÓN: Detecta si escriben cuando ya está lleno
+    function verificarLimiteEscritura(e) {
+      const input = e.target;
+      const isControlKey = e.key.length > 1 || e.ctrlKey || e.metaKey || e.altKey;
       
-      let prefix = "";
-      let parteEditable = text;
-
-      if (text.startsWith(clanTag)) {
-        prefix = clanTag;
-        parteEditable = text.substring(clanTag.length);
-      }
-
-      let noisy = '';
-      for (let char of parteEditable) {
-        noisy += char;
-        // 30% de probabilidad de agregar más basura
-        if (Math.random() < 0.3) {
-          noisy += glitches[Math.floor(Math.random() * glitches.length)];
+      if (!isControlKey) {
+        // Si ya hay 9 caracteres (Total 12) e intentan escribir otro
+        if ([...input.value].length >= 9) {
+           triggerErrorAnim();
         }
       }
-      
-      document.getElementById('output-manual').innerText = prefix + noisy;
     }
 
-    function copiarManual() {
-      const text = document.getElementById('output-manual').innerText;
-      copiar(text);
+    function triggerErrorAnim() {
+      const wrapper = document.querySelector('.glitch-input-wrapper');
+      // Reiniciamos la animación quitando y poniendo la clase
+      wrapper.classList.remove('input-error-anim');
+      void wrapper.offsetWidth; // Forzar reflow
+      wrapper.classList.add('input-error-anim');
+      
+      // Quitar la clase después de que termine la animación
+      setTimeout(() => {
+        wrapper.classList.remove('input-error-anim');
+      }, 400);
+    }
+
+    function addSymbol(symbol) {
+      const input = document.getElementById('inputGlitch');
+      const currentTotal = actualizarContador(); 
+
+      // Si intentan agregar un símbolo y ya son 12
+      if (currentTotal >= 12) {
+        mostrarToast("⛔ Lleno (Max 12)");
+        triggerErrorAnim(); // También hacemos vibrar la caja
+        return;
+      }
+
+      input.value += symbol;
+      actualizarContador();
+      input.focus(); 
+    }
+
+    function copiarGlitch() {
+      const input = document.getElementById('inputGlitch');
+      const fullText = "「Ϟ」" + input.value;
+      copiar(fullText);
     }
 
     // ---------------------------------------------------------
@@ -383,12 +529,13 @@
     function copiar(texto) {
       if (!texto) return;
       navigator.clipboard.writeText(texto).then(() => {
-        mostrarToast();
+        mostrarToast("¡Copiado al portapapeles!");
       });
     }
 
-    function mostrarToast() {
+    function mostrarToast(mensaje) {
       const toast = document.getElementById("toast");
+      if(mensaje) toast.innerText = mensaje;
       toast.className = "show";
       setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
     }
@@ -417,13 +564,18 @@
         drops[i]++;
       }
     }
+    
+    // Iniciar
     setInterval(drawMatrix, 33);
     window.addEventListener("resize", () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     });
 
-    window.onload = generarNicks;
+    window.onload = function() {
+      generarNicks();
+      actualizarContador(); 
+    };
 
   </script>
 </body>
