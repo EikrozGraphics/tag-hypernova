@@ -267,6 +267,20 @@
       background: #39ff14;
       color: #000;
     }
+    
+    .clean-btn {
+        border-color: #888; 
+        color: #aaa; 
+        width: auto; 
+        padding: 6px 15px; 
+        font-size: 12px;
+    }
+    .clean-btn:hover {
+        border-color: #fff;
+        color: #fff;
+        background: #333;
+        box-shadow: none;
+    }
 
     /* Toast Notification */
     #toast {
@@ -354,6 +368,10 @@
         <button class="mini-btn" onclick="addSymbol('͜')">‿</button>
         <button class="mini-btn" onclick="addSymbol('̰')">~</button>
       </div>
+      
+       <div style="text-align: center; margin-top: 5px;">
+        <button class="mini-btn clean-btn" onclick="limpiarDiacriticos()">LIMPIAR EFECTOS 🧹</button>
+      </div>
     </div>
 
     <br>
@@ -400,7 +418,6 @@
     function generarNicks() {
       let inputElement = document.getElementById('inputNick');
       
-      // Validación extra
       if ([...inputElement.value].length > 9) {
           inputElement.value = [...inputElement.value].slice(0, 9).join('');
       }
@@ -450,38 +467,37 @@
     }
 
     // ---------------------------------------------------------
-    // 3. LOGICA SECCIÓN 2 (EDITOR GLITCH MANUAL)
+    // 3. LOGICA SECCIÓN 2 (EDITOR GLITCH MANUAL) - CORREGIDO
     // ---------------------------------------------------------
 
     function actualizarContador() {
       const input = document.getElementById('inputGlitch');
       const counterDisplay = document.getElementById('current-count');
-      const wrapper = document.querySelector('.glitch-input-wrapper');
       
-      // Validación extra para pegar texto
-      if ([...input.value].length > 9) {
-          input.value = [...input.value].slice(0, 9).join('');
+      // AUTO-LIMPIEZA: Si el usuario pega el prefijo, lo borramos
+      if (input.value.includes("「Ϟ」")) {
+         input.value = input.value.split("「Ϟ」").join("");
       }
 
       const prefixLength = 3;
       const userLength = [...input.value].length;
-      const totalLength = prefixLength + userLength;
       
+      // Si se pasa de 9, cortamos
+      if (userLength > 9) {
+          input.value = [...input.value].slice(0, 9).join('');
+      }
+      
+      const totalLength = prefixLength + [...input.value].length;
       counterDisplay.innerText = totalLength;
-
-      // ELIMINADO: Ya no ponemos la clase roja fija si llega a 12.
-      // El borde se queda normal (verde/neutro) aunque esté lleno.
       
       return totalLength;
     }
 
-    // NUEVA FUNCIÓN: Detecta si escriben cuando ya está lleno
     function verificarLimiteEscritura(e) {
       const input = e.target;
       const isControlKey = e.key.length > 1 || e.ctrlKey || e.metaKey || e.altKey;
       
       if (!isControlKey) {
-        // Si ya hay 9 caracteres (Total 12) e intentan escribir otro
         if ([...input.value].length >= 9) {
            triggerErrorAnim();
         }
@@ -490,12 +506,9 @@
 
     function triggerErrorAnim() {
       const wrapper = document.querySelector('.glitch-input-wrapper');
-      // Reiniciamos la animación quitando y poniendo la clase
       wrapper.classList.remove('input-error-anim');
-      void wrapper.offsetWidth; // Forzar reflow
+      void wrapper.offsetWidth; 
       wrapper.classList.add('input-error-anim');
-      
-      // Quitar la clase después de que termine la animación
       setTimeout(() => {
         wrapper.classList.remove('input-error-anim');
       }, 400);
@@ -503,18 +516,64 @@
 
     function addSymbol(symbol) {
       const input = document.getElementById('inputGlitch');
-      const currentTotal = actualizarContador(); 
-
-      // Si intentan agregar un símbolo y ya son 12
-      if (currentTotal >= 12) {
-        mostrarToast("⛔ Lleno (Max 12)");
-        triggerErrorAnim(); // También hacemos vibrar la caja
-        return;
+      const start = input.selectionStart; 
+      const end = input.selectionEnd;     
+      const val = input.value;
+      
+      // --- LÓGICA DE BORRADOR (TOGGLE) ---
+      // Verificamos si el símbolo ya existe justo ANTES del cursor
+      const prevChar = val.substring(start - symbol.length, start);
+      
+      if (prevChar === symbol) {
+        // Si existe, lo borramos
+        const before = val.substring(0, start - symbol.length);
+        const after = val.substring(end); 
+        input.value = before + after;
+        
+        // Restauramos el cursor
+        const newCursorPos = start - symbol.length;
+        input.selectionStart = input.selectionEnd = newCursorPos;
+        
+        actualizarContador();
+        input.focus();
+        return; 
       }
 
-      input.value += symbol;
+      // --- LÓGICA DE INSERCIÓN PRECISA ---
+      const before = val.substring(0, start);
+      const after = val.substring(end);
+      const candidateValue = before + symbol + after;
+      
+      // Verificamos si cabe
+      if ([...candidateValue].length > 9) {
+         mostrarToast("⛔ Lleno (Max 12)");
+         triggerErrorAnim();
+         return;
+      }
+
+      input.value = candidateValue;
+      
+      // Ponemos el cursor después del símbolo nuevo
+      const newCursorPos = start + symbol.length;
+      input.selectionStart = input.selectionEnd = newCursorPos;
+
       actualizarContador();
       input.focus(); 
+    }
+    
+    // --- LÓGICA DE LIMPIEZA DE DIACRÍTICOS ---
+    function limpiarDiacriticos() {
+        const input = document.getElementById('inputGlitch');
+        let val = input.value;
+        
+        // Usamos Normalize NFD para separar letras de acentos y borramos el rango de diacriticos
+        // Esto elimina las "rayas", "puntos" y "glitch" combinados, pero deja la letra base.
+        val = val.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        
+        input.value = val;
+        actualizarContador();
+        input.focus();
+        mostrarToast("🧹 ¡Texto limpio!");
     }
 
     function copiarGlitch() {
@@ -565,7 +624,6 @@
       }
     }
     
-    // Iniciar
     setInterval(drawMatrix, 33);
     window.addEventListener("resize", () => {
       canvas.width = window.innerWidth;
